@@ -1,1 +1,898 @@
-<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><!--[if IE]><link rel="icon" href="/favicon.ico"><![endif]--><title>yuting</title><link href=/js/about.8f1ac175.js rel=prefetch><link href=/css/app.c867fac5.css rel=preload as=style><link href=/js/app.746a5c7c.js rel=preload as=script><link href=/js/chunk-vendors.735d88dc.js rel=preload as=script><link href=/css/app.c867fac5.css rel=stylesheet><link rel=icon type=image/png sizes=32x32 href=/img/icons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/img/icons/favicon-16x16.png><link rel=manifest href=/manifest.json><meta name=theme-color content=#4DBA87><meta name=apple-mobile-web-app-capable content=no><meta name=apple-mobile-web-app-status-bar-style content=default><meta name=apple-mobile-web-app-title content=yuting><link rel=apple-touch-icon href=/img/icons/apple-touch-icon-152x152.png><link rel=mask-icon href=/img/icons/safari-pinned-tab.svg color=#4DBA87><meta name=msapplication-TileImage content=/img/icons/msapplication-icon-144x144.png><meta name=msapplication-TileColor content=#000000></head><body><noscript><strong>We're sorry but yuting doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script src=/js/chunk-vendors.735d88dc.js></script><script src=/js/app.746a5c7c.js></script></body></html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>婚禮報到 · Wedding Check-in</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root {
+    --cream: #f8f4ee;
+    --champagne: #e8d5b7;
+    --rose: #c9a090;
+    --deep-rose: #9c6b5e;
+    --gold: #c8a96e;
+    --dark: #2c2018;
+    --text: #4a3728;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Noto Serif TC', serif;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 60px;
+  }
+
+  .hero-photo {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(44,32,24,0.1) 0%, rgba(44,32,24,0.55) 100%),
+      url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80') center/cover no-repeat;
+    transform: scale(1.04);
+    animation: slowZoom 18s ease-in-out infinite alternate;
+  }
+
+  @keyframes slowZoom {
+    from { transform: scale(1.04); }
+    to   { transform: scale(1.12); }
+  }
+
+  /* floating petals */
+  .petals { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .petal {
+    position: absolute;
+    width: 8px; height: 12px;
+    background: rgba(201,160,144,0.55);
+    border-radius: 50% 0 50% 0;
+    animation: fall linear infinite;
+    top: -20px;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: .8; }
+    100% { transform: translateY(110vh) rotate(360deg) translateX(60px); opacity: 0; }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    animation: fadeUp .9s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-label {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(13px, 2vw, 16px);
+    letter-spacing: .3em;
+    color: var(--champagne);
+    margin-bottom: 14px;
+  }
+
+  .hero-names {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 9vw, 80px);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: .06em;
+    text-shadow: 0 2px 20px rgba(0,0,0,.3);
+  }
+
+  .hero-amp {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--champagne);
+    margin: 0 12px;
+  }
+
+  .hero-date {
+    margin-top: 10px;
+    font-size: clamp(12px, 1.8vw, 15px);
+    letter-spacing: .25em;
+    color: rgba(255,255,255,.75);
+    font-weight: 300;
+  }
+
+  .divider-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px auto;
+    width: 220px;
+  }
+  .divider-line::before,
+  .divider-line::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(200,169,110,.6);
+  }
+  .divider-icon { color: var(--gold); font-size: 16px; }
+
+  .btn-checkin {
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--gold), #e2c07a, var(--gold));
+    background-size: 200% 200%;
+    color: var(--dark);
+    border: none;
+    padding: 16px 44px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .15em;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(200,169,110,.45);
+    transition: transform .2s, box-shadow .2s;
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .btn-checkin:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(200,169,110,.55); }
+  .btn-checkin svg { width: 20px; height: 20px; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,.5);
+    font-size: 11px;
+    letter-spacing: .2em;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+  /* ── Modal Overlay ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(44,32,24,.72);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: overlayIn .25s ease;
+  }
+  @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--cream);
+    border-radius: 20px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.35);
+    animation: modalIn .3s cubic-bezier(.34,1.56,.64,1) both;
+    position: relative;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.88) translateY(20px); } to { opacity: 1; transform: none; } }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none; border: none;
+    cursor: pointer;
+    color: var(--deep-rose);
+    font-size: 22px;
+    line-height: 1;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    transition: background .15s;
+  }
+  .modal-close:hover { background: rgba(156,107,94,.12); }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    text-align: center;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .modal-sub {
+    text-align: center;
+    font-size: 12px;
+    color: var(--rose);
+    letter-spacing: .2em;
+    margin-bottom: 24px;
+  }
+
+  /* Steps */
+  .steps { display: flex; justify-content: center; gap: 0; margin-bottom: 28px; }
+  .step {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; flex: 1; max-width: 80px;
+  }
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: calc(50% + 14px);
+    width: calc(100% - 28px);
+    height: 2px;
+    background: var(--champagne);
+    z-index: 0;
+    transition: background .3s;
+  }
+  .step.done:not(:last-child)::after { background: var(--gold); }
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--champagne);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1;
+    transition: background .3s, color .3s;
+    border: 2px solid transparent;
+  }
+  .step.active .step-dot { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+  .step.done .step-dot { background: var(--deep-rose); color: white; }
+  .step-label { font-size: 10px; margin-top: 5px; letter-spacing: .05em; color: var(--rose); text-align: center; }
+
+  /* Scanner view */
+  .scanner-view { display: none; }
+  .scanner-view.active { display: block; }
+
+  #qr-reader {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--champagne);
+  }
+  #qr-reader video { border-radius: 10px; }
+
+  .scanner-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--rose);
+    margin-top: 10px;
+    letter-spacing: .05em;
+  }
+
+  .btn-manual {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    background: none;
+    border: 1px solid var(--champagne);
+    border-radius: 10px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    color: var(--deep-rose);
+    cursor: pointer;
+    letter-spacing: .1em;
+    transition: background .15s;
+  }
+  .btn-manual:hover { background: rgba(201,160,144,.1); }
+
+  /* Form view */
+  .form-view { display: none; }
+  .form-view.active { display: block; }
+
+  .qr-result-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(200,169,110,.15);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .qr-result-badge svg { color: var(--gold); flex-shrink: 0; }
+  .qr-result-text { flex: 1; word-break: break-all; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: .15em;
+    color: var(--deep-rose);
+    margin-bottom: 7px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: white;
+    border: 1.5px solid var(--champagne);
+    border-radius: 10px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    color: var(--dark);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .form-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(200,169,110,.18);
+  }
+
+  .count-control {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--champagne);
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+  .count-btn {
+    width: 44px; height: 44px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--deep-rose);
+    cursor: pointer;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .count-btn:hover { background: rgba(201,160,144,.12); }
+  .count-num {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    font-family: 'Playfair Display', serif;
+  }
+
+  .btn-submit {
+    width: 100%;
+    margin-top: 8px;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--deep-rose), var(--rose));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .15em;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(156,107,94,.35);
+    transition: transform .18s, box-shadow .18s;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(156,107,94,.45); }
+
+  /* Success view */
+  .success-view { display: none; text-align: center; }
+  .success-view.active { display: block; }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--gold), #e2c07a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .success-icon svg { color: white; width: 36px; height: 36px; }
+
+  .success-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .success-msg { font-size: 14px; color: var(--rose); letter-spacing: .05em; margin-bottom: 20px; line-height: 1.7; }
+  .success-info {
+    background: rgba(200,169,110,.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 22px;
+  }
+  .success-info-row { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; }
+  .success-info-key { color: var(--rose); }
+  .success-info-val { font-weight: 600; color: var(--dark); }
+
+  .btn-done {
+    width: 100%;
+    padding: 14px;
+    background: var(--champagne);
+    color: var(--dark);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    cursor: pointer;
+    transition: background .18s;
+  }
+  .btn-done:hover { background: var(--gold); color: white; }
+
+  /* Confetti */
+  .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+  .conf {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    animation: confFall 2.5s ease-out forwards;
+  }
+  @keyframes confFall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Records Panel */
+  .records-btn {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    z-index: 50;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--deep-rose);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    transition: transform .18s;
+  }
+  .records-btn:hover { transform: scale(1.08); }
+  .records-badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace;
+  }
+
+  .records-panel {
+    position: fixed;
+    bottom: 90px; right: 28px;
+    z-index: 50;
+    width: 300px;
+    max-height: 50vh;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(0,0,0,.2);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    animation: panelIn .22s ease both;
+  }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+  .records-panel.open { display: flex; }
+  .records-header {
+    padding: 16px 20px 12px;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--dark);
+    border-bottom: 1px solid var(--champagne);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .records-count { font-size: 12px; color: var(--rose); font-family: 'Noto Serif TC', serif; }
+  .records-list { overflow-y: auto; padding: 8px 0; flex: 1; }
+  .record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(232,213,183,.4);
+  }
+  .record-item:last-child { border-bottom: none; }
+  .record-name { font-weight: 600; color: var(--dark); }
+  .record-count { background: var(--champagne); color: var(--dark); padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .record-time { font-size: 11px; color: var(--rose); margin-top: 2px; }
+  .records-empty { text-align: center; padding: 24px; color: var(--rose); font-size: 13px; }
+
+  .export-btn {
+    margin: 8px 12px;
+    padding: 8px;
+    background: none;
+    border: 1px solid var(--champagne);
+    border-radius: 8px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px;
+    color: var(--deep-rose);
+    cursor: pointer;
+    letter-spacing: .08em;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .export-btn:hover { background: rgba(201,160,144,.12); }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-photo"></div>
+
+  <!-- Floating petals -->
+  <div class="petals" id="petals"></div>
+
+  <div class="hero-content">
+    <p class="hero-label">Wedding Day</p>
+    <h1 class="hero-names">
+      志明<span class="hero-amp">&amp;</span>春嬌
+    </h1>
+    <p class="hero-date">2026 · 03 · 08 &nbsp;｜&nbsp; 台北國賓大飯店</p>
+    <div class="divider-line"><span class="divider-icon">✦</span></div>
+    <button class="btn-checkin" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75V16.5zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>
+      </svg>
+      立即報到
+    </button>
+  </div>
+
+  <p class="scroll-hint">▼</p>
+</section>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <h2 class="modal-title">婚禮報到</h2>
+    <p class="modal-sub">WEDDING CHECK-IN</p>
+
+    <!-- Steps -->
+    <div class="steps">
+      <div class="step active" id="step1">
+        <div class="step-dot">1</div>
+        <span class="step-label">掃描<br>QR碼</span>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-dot">2</div>
+        <span class="step-label">填寫<br>資料</span>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-dot">3</div>
+        <span class="step-label">報到<br>完成</span>
+      </div>
+    </div>
+
+    <!-- Scanner View -->
+    <div class="scanner-view active" id="scannerView">
+      <div id="qr-reader"></div>
+      <p class="scanner-hint">將 QR Code 對準框內進行掃描</p>
+      <button class="btn-manual" onclick="skipToForm()">✏️ 手動輸入（無 QR Code）</button>
+    </div>
+
+    <!-- Form View -->
+    <div class="form-view" id="formView">
+      <div class="qr-result-badge" id="qrBadge">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="qr-result-text" id="qrResultText">QR Code 掃描成功</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">✦ 姓名</label>
+        <input class="form-input" id="guestName" type="text" placeholder="請輸入您的姓名" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">✦ 出席人數</label>
+        <div class="count-control">
+          <button class="count-btn" onclick="changeCount(-1)">−</button>
+          <span class="count-num" id="countDisplay">1</span>
+          <button class="count-btn" onclick="changeCount(1)">＋</button>
+        </div>
+      </div>
+
+      <button class="btn-submit" onclick="submitCheckin()">確認報到</button>
+    </div>
+
+    <!-- Success View -->
+    <div class="success-view" id="successView">
+      <div class="success-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+        </svg>
+      </div>
+      <h3 class="success-title">報到成功！</h3>
+      <p class="success-msg">歡迎蒞臨婚禮現場<br>感謝您與我們共同見證這美好時刻 🌸</p>
+      <div class="success-info">
+        <div class="success-info-row">
+          <span class="success-info-key">賓客姓名</span>
+          <span class="success-info-val" id="resultName">—</span>
+        </div>
+        <div class="success-info-row">
+          <span class="success-info-key">出席人數</span>
+          <span class="success-info-val" id="resultCount">—</span>
+        </div>
+        <div class="success-info-row">
+          <span class="success-info-key">報到時間</span>
+          <span class="success-info-val" id="resultTime">—</span>
+        </div>
+      </div>
+      <button class="btn-done" onclick="resetModal()">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- Records floating button -->
+<div style="position:fixed;bottom:28px;right:28px;z-index:50;">
+  <div class="records-panel" id="recordsPanel">
+    <div class="records-header">
+      <span>報到名單</span>
+      <span class="records-count" id="totalCount">共 0 人</span>
+    </div>
+    <div class="records-list" id="recordsList">
+      <div class="records-empty">尚無報到記錄</div>
+    </div>
+    <button class="export-btn" onclick="exportCSV()">⬇ 匯出 CSV</button>
+  </div>
+
+  <button class="records-btn" onclick="toggleRecords()" title="報到名單">
+    📋
+    <span class="records-badge" id="recordsBadge">0</span>
+  </button>
+</div>
+
+<script>
+// ── Petals ──
+const petalsEl = document.getElementById('petals');
+for (let i = 0; i < 14; i++) {
+  const p = document.createElement('div');
+  p.className = 'petal';
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.animationDuration = (8 + Math.random() * 12) + 's';
+  p.style.animationDelay = (Math.random() * 10) + 's';
+  p.style.width = (6 + Math.random() * 8) + 'px';
+  p.style.height = (9 + Math.random() * 10) + 'px';
+  p.style.opacity = .4 + Math.random() * .4;
+  petalsEl.appendChild(p);
+}
+
+// ── State ──
+let guestCount = 1;
+let qrCodeResult = '';
+let records = [];
+let html5QrCode = null;
+
+// ── Modal ──
+function openModal() {
+  document.getElementById('modal').classList.add('active');
+  startScanner();
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  stopScanner();
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+function resetModal() {
+  stopScanner().then(() => {
+    document.getElementById('modal').classList.remove('active');
+    setTimeout(() => {
+      showView('scanner');
+      updateStep(1);
+      guestCount = 1;
+      updateCountDisplay();
+      document.getElementById('guestName').value = '';
+      qrCodeResult = '';
+      openModal();
+    }, 300);
+  });
+}
+
+// ── Views ──
+function showView(view) {
+  document.getElementById('scannerView').classList.toggle('active', view === 'scanner');
+  document.getElementById('formView').classList.toggle('active', view === 'form');
+  document.getElementById('successView').classList.toggle('active', view === 'success');
+}
+
+function updateStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const s = document.getElementById('step' + i);
+    s.classList.remove('active', 'done');
+    if (i < n) s.classList.add('done');
+    if (i === n) s.classList.add('active');
+  }
+}
+
+// ── Scanner ──
+let scannerRunning = false;
+
+function startScanner() {
+  if (html5QrCode) return;
+  // Clear the qr-reader div in case of leftover DOM from previous session
+  document.getElementById('qr-reader').innerHTML = '';
+  html5QrCode = new Html5Qrcode("qr-reader");
+  const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+  html5QrCode.start(
+    { facingMode: "environment" },
+    config,
+    (decodedText) => {
+      qrCodeResult = decodedText;
+      stopScanner().then(() => {
+        document.getElementById('qrResultText').textContent = decodedText;
+        showView('form');
+        updateStep(2);
+      });
+    }
+  ).then(() => {
+    scannerRunning = true;
+  }).catch(err => {
+    console.warn('Camera error', err);
+    html5QrCode = null;
+    scannerRunning = false;
+  });
+}
+
+function stopScanner() {
+  return new Promise((resolve) => {
+    if (html5QrCode && scannerRunning) {
+      html5QrCode.stop().then(() => {
+        html5QrCode = null;
+        scannerRunning = false;
+        resolve();
+      }).catch(() => {
+        html5QrCode = null;
+        scannerRunning = false;
+        resolve();
+      });
+    } else {
+      if (html5QrCode) {
+        try { html5QrCode.clear(); } catch(e) {}
+      }
+      html5QrCode = null;
+      scannerRunning = false;
+      resolve();
+    }
+  });
+}
+
+function skipToForm() {
+  stopScanner().then(() => {
+    qrCodeResult = '手動報到';
+    document.getElementById('qrResultText').textContent = '手動輸入（無 QR Code）';
+    showView('form');
+    updateStep(2);
+  });
+}
+
+// ── Count ──
+function changeCount(d) {
+  guestCount = Math.max(1, Math.min(20, guestCount + d));
+  updateCountDisplay();
+}
+function updateCountDisplay() {
+  document.getElementById('countDisplay').textContent = guestCount;
+}
+
+// ── Submit ──
+function submitCheckin() {
+  const name = document.getElementById('guestName').value.trim();
+  if (!name) {
+    document.getElementById('guestName').focus();
+    document.getElementById('guestName').style.borderColor = 'var(--rose)';
+    return;
+  }
+  document.getElementById('guestName').style.borderColor = '';
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  // record
+  records.push({ name, count: guestCount, time: timeStr, qr: qrCodeResult });
+  updateRecords();
+
+  // show success
+  document.getElementById('resultName').textContent = name;
+  document.getElementById('resultCount').textContent = guestCount + ' 人';
+  document.getElementById('resultTime').textContent = timeStr;
+  showView('success');
+  updateStep(3);
+
+  // confetti
+  launchConfetti();
+}
+
+// ── Confetti ──
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#c8a96e','#e8d5b7','#c9a090','#9c6b5e','#f4e3d0','#fff'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'conf';
+      c.style.left = (10 + Math.random() * 80) + 'vw';
+      c.style.top = '0';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDuration = (1.5 + Math.random()) + 's';
+      c.style.animationDelay = (Math.random() * .5) + 's';
+      c.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+      container.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }, i * 20);
+  }
+}
+
+// ── Records ──
+function updateRecords() {
+  const badge = document.getElementById('recordsBadge');
+  const totalCount = document.getElementById('totalCount');
+  const list = document.getElementById('recordsList');
+
+  const total = records.reduce((s, r) => s + r.count, 0);
+  badge.textContent = records.length;
+  totalCount.textContent = '共 ' + total + ' 人 / ' + records.length + ' 桌次';
+
+  if (records.length === 0) {
+    list.innerHTML = '<div class="records-empty">尚無報到記錄</div>';
+    return;
+  }
+  list.innerHTML = [...records].reverse().map(r => `
+    <div class="record-item">
+      <div>
+        <div class="record-name">${r.name}</div>
+        <div class="record-time">${r.time}</div>
+      </div>
+      <span class="record-count">${r.count} 人</span>
+    </div>
+  `).join('');
+}
+
+function toggleRecords() {
+  document.getElementById('recordsPanel').classList.toggle('open');
+}
+
+function exportCSV() {
+  if (records.length === 0) { alert('尚無報到記錄'); return; }
+  const header = '姓名,人數,報到時間,QR Code\n';
+  const rows = records.map(r => `${r.name},${r.count},${r.time},${r.qr}`).join('\n');
+  const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '婚禮報到名單.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
