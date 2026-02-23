@@ -834,6 +834,31 @@ function submitCheckin() {
   launchConfetti();
 }
 
+// ── Submit ──
+async function getchecks() {
+  try {
+    // 用 fetch 抓資料
+    const response = await fetch('https://d1-template.davidkung007.workers.dev/api/checks'); // 換成你的 API
+    if (!response.ok) throw new Error('HTTP 錯誤: ' + response.status);
+    
+    const data = await response.json();
+
+    // 假設 data 是陣列，每一筆有 name, guestCount, timeStr, qrCodeResult
+    data.forEach(item => {
+      const { name, number, timeStr, qrCodeResult } = item;
+      records.push({ name, count: number, time: timeStr, qr: qrCodeResult });
+    });
+
+    // 更新畫面或表格
+    updateRecords();
+
+  } catch (error) {
+    console.error('抓取資料失敗:', error);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', getchecks);
+
 // ── Confetti ──
 function launchConfetti() {
   const container = document.getElementById('confettiContainer');
