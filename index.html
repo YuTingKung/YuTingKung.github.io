@@ -1080,15 +1080,27 @@ function startStaffScanner() {
     (decodedText) => {
       stopStaffScanner().then(() => {
         staffScanData.raw = decodedText;
-        // 預設格式: 名稱,人數,電話
-        let parts = decodedText.split('/');
-        staffScanData.name = parts[0] || '';
-        staffScanData.count = parts[1] || '';
-        staffScanData.phone = parts[2] || '';
-        document.getElementById('staffScanName').textContent = '姓名：' + staffScanData.name;
-        document.getElementById('staffScanCount').textContent = '人數：' + staffScanData.count;
-        document.getElementById('staffScanPhone').textContent = '電話：' + staffScanData.phone;
-        document.getElementById('staffScanResult').style.display = 'block';
+        // 掃描出來是 hash，傳到後端查詢
+        fetch(`https://d1-template.davidkung007.workers.dev/api/guest_by_hash?hash=${encodeURIComponent(decodedText)}`)
+          .then(res => res.json())
+          .then(data => {
+            staffScanData.name = data.name || '';
+            staffScanData.count = data.number || '';
+            staffScanData.phone = data.phone || '';
+            document.getElementById('staffScanName').textContent = '姓名：' + (data.name || '');
+            document.getElementById('staffScanCount').textContent = '人數：' + (data.number || '');
+            document.getElementById('staffScanPhone').textContent = '電話：' + (data.phone || '');
+            document.getElementById('staffScanResult').style.display = 'block';
+          })
+          .catch(() => {
+            staffScanData.name = '';
+            staffScanData.count = '';
+            staffScanData.phone = '';
+            document.getElementById('staffScanName').textContent = '查無資料';
+            document.getElementById('staffScanCount').textContent = '';
+            document.getElementById('staffScanPhone').textContent = '';
+            document.getElementById('staffScanResult').style.display = 'block';
+          });
       });
     }
   ).then(() => {
