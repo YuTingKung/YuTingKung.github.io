@@ -7,6 +7,59 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
+    /* Guest Table Styles */
+    #guestTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      font-family: 'Noto Serif TC', serif;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(200,169,110,.08);
+    }
+    #guestTable th, #guestTable td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #f4e3d0;
+      text-align: left;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #guestTable th {
+      position: sticky;
+      top: 0;
+      background: linear-gradient(135deg,#f8f4ee,#e8d5b7);
+      color: #9c6b5e;
+      font-weight: 600;
+      z-index: 2;
+      letter-spacing: .08em;
+      font-size: 15px;
+      border-bottom: 2px solid #e8d5b7;
+    }
+    #guestTable tr:nth-child(even) {
+      background: #f8f4ee;
+    }
+    #guestTable tr:hover {
+      background: #ffe9d6;
+      transition: background .18s;
+    }
+    #guestTable td {
+      color: #4a3728;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    #guestTable td:last-child, #guestTable th:last-child {
+      border-right: none;
+    }
+    #guestTable th {
+      border-right: 1px solid #e8d5b7;
+    }
+    #guestTable td {
+      border-right: 1px solid #f4e3d0;
+    }
+    @media (max-width: 900px) {
+      #guestTable th, #guestTable td { max-width: 90px; font-size: 13px; }
+    }
   :root {
     --cream: #f8f4ee;
     --champagne: #e8d5b7;
@@ -539,13 +592,16 @@
 </head>
 <body>
 
-<!-- Hero -->
-<section class="hero">
+<!-- Top-right tab navigation -->
+<div style="position:fixed;top:18px;right:28px;z-index:120;display:flex;gap:8px;">
+  <button id="mainTabBtn" class="btn-checkin" style="padding:8px 22px;font-size:15px;background:linear-gradient(135deg,#c9a090,#e8d5b7);color:#2c2018;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);" onclick="showMainView()">主頁</button>
+  <button id="guestTabBtn" class="btn-checkin" style="padding:8px 22px;font-size:15px;background:linear-gradient(135deg,#9c6b5e,#c9a090);color:white;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);" onclick="showGuestView()">賓客名單</button>
+</div>
+
+<!-- Main Hero View -->
+<section class="hero" id="mainView">
   <div class="hero-photo"></div>
-
-  <!-- Floating petals -->
   <div class="petals" id="petals"></div>
-
   <div class="hero-content">
     <p class="hero-label">Wedding Day</p>
     <h1 class="hero-names">
@@ -567,8 +623,26 @@
       人數上傳
     </button>
   </div>
-
   <p class="scroll-hint">▼</p>
+</section>
+
+<!-- Guest List View -->
+<section id="guestView" style="display:none;padding:48px 0 0 0;background:var(--cream);min-height:100vh;">
+  <div style="max-width:1200px;margin:0 auto;padding:32px 18px 18px 18px;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(200,169,110,.12);">
+    <h2 style="font-family:'Playfair Display',serif;font-size:28px;color:#9c6b5e;margin-bottom:18px;text-align:center;">賓客名單列表</h2>
+    <div style="overflow-x:auto;">
+      <table id="guestTable" style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#f8f4ee;color:#9c6b5e;">
+            <th>姓名</th><th>關係</th><th>出席</th><th>同行</th><th>兒童座</th><th>素食</th><th>邀請函</th><th>Email</th><th>地址</th><th>電話</th><th>留言</th><th>回覆時間</th><th>秒數</th><th>IP</th><th>全員</th><th>紀錄</th><th>會員時間</th><th>Hash</th>
+          </tr>
+        </thead>
+        <tbody id="guestTableBody">
+          <tr><td colspan="18" style="text-align:center;color:#c9a090;padding:18px;">資料載入中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
 <!-- Modal -->
@@ -719,6 +793,65 @@
 </div>
 
 <script>
+// ── Guest List Tab Navigation ──
+function showMainView() {
+  document.getElementById('mainView').style.display = '';
+  document.getElementById('guestView').style.display = 'none';
+  document.getElementById('mainTabBtn').style.background = 'linear-gradient(135deg,#c9a090,#e8d5b7)';
+  document.getElementById('mainTabBtn').style.color = '#2c2018';
+  document.getElementById('guestTabBtn').style.background = 'linear-gradient(135deg,#9c6b5e,#c9a090)';
+  document.getElementById('guestTabBtn').style.color = 'white';
+}
+function showGuestView() {
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('guestView').style.display = '';
+  document.getElementById('mainTabBtn').style.background = 'linear-gradient(135deg,#e8d5b7,#c9a090)';
+  document.getElementById('mainTabBtn').style.color = '#9c6b5e';
+  document.getElementById('guestTabBtn').style.background = 'linear-gradient(135deg,#c9a090,#e8d5b7)';
+  document.getElementById('guestTabBtn').style.color = '#2c2018';
+  loadGuestList();
+}
+
+// ── Guest List Fetch & Render ──
+function loadGuestList() {
+  const tbody = document.getElementById('guestTableBody');
+  tbody.innerHTML = '<tr><td colspan="18" style="text-align:center;color:#c9a090;padding:18px;">資料載入中...</td></tr>';
+  fetch('https://d1-template.davidkung007.workers.dev/api/wedding_guests')
+    .then(res => res.json())
+    .then(data => {
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="18" style="text-align:center;color:#c9a090;padding:18px;">無資料</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(g => `
+        <tr>
+          <td>${g.name || ''}</td>
+          <td>${g.relation || ''}</td>
+          <td>${g.attend_status || ''}</td>
+          <td>${g.with_guest || ''}</td>
+          <td>${g.need_child_seat || ''}</td>
+          <td>${g.need_vegetarian || ''}</td>
+          <td>${g.need_invitation || ''}</td>
+          <td>${g.email || ''}</td>
+          <td>${g.address || ''}</td>
+          <td>${g.phone || ''}</td>
+          <td>${g.message || ''}</td>
+          <td>${g.answer_time || ''}</td>
+          <td>${g.answer_seconds || ''}</td>
+          <td>${g.ip || ''}</td>
+          <td>${g.full_flag || ''}</td>
+          <td>${g.user_record || ''}</td>
+          <td>${g.member_time || ''}</td>
+          <td>${g.hash || ''}</td>
+        </tr>
+      `).join('');
+    })
+    .catch(() => {
+      tbody.innerHTML = '<tr><td colspan="18" style="text-align:center;color:#c9a090;padding:18px;">資料載入失敗</td></tr>';
+    });
+}
+// 預設顯示主頁
+showMainView();
 // ── Petals ──
 const petalsEl = document.getElementById('petals');
 for (let i = 0; i < 14; i++) {
