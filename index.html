@@ -553,18 +553,18 @@
     </h1>
     <p class="hero-date">2026 · 06 · 14 &nbsp;｜&nbsp; 新板希爾頓</p>
     <div class="divider-line"><span class="divider-icon">✦</span></div>
-    <button class="btn-checkin" onclick="openModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75V16.5zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>
-      </svg>
-      立即報到
-    </button>
+    <!-- 立即報到按鈕已移除 -->
     <button class="btn-checkin" style="margin-left:12px;background:linear-gradient(135deg,#9c6b5e,#c9a090);color:white;" onclick="openStaffScanModal()">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0020 7.382V6a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a1 1 0 00.447 1.342L9 10m6 0v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4m11 0v4a2 2 0 01-2 2h-2" />
       </svg>
       掃描報到
+    </button>
+    <button class="btn-checkin" style="margin-left:12px;background:linear-gradient(135deg,#c8a96e,#e8d5b7);color:#2c2018;" onclick="openUploadModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      人數上傳
     </button>
   </div>
 
@@ -658,21 +658,42 @@
 
 <!-- Confetti container -->
 <div class="confetti-container" id="confettiContainer"></div>
+<!-- Excel Upload Modal -->
+<div class="modal-overlay" id="uploadModal" onclick="handleUploadOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeUploadModal()">✕</button>
+    <h2 class="modal-title">人數上傳</h2>
+    <p class="modal-sub">EXCEL UPLOAD</p>
+    <div style="margin-top:18px;text-align:center;">
+      <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="margin-bottom:16px;">
+      <button class="btn-submit" onclick="uploadExcelFile()">上傳</button>
+      <div id="uploadStatus" style="margin-top:12px;font-size:13px;color:#9c6b5e;"></div>
+    </div>
+  </div>
+</div>
 <!-- Staff Scan Modal -->
 <div class="modal-overlay" id="staffScanModal" onclick="handleStaffOverlayClick(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeStaffScanModal()">✕</button>
-    <h2 class="modal-title">工作人員掃描報到</h2>
-    <p class="modal-sub">STAFF QR SCAN</p>
+    <h2 class="modal-title">掃描報到</h2>
+    <p class="modal-sub">QR SCAN / 手動輸入</p>
     <div id="staffScanView">
       <div id="staff-qr-reader"></div>
       <p class="scanner-hint">請將 QR Code 對準框內進行掃描</p>
+      <button class="btn-manual" style="margin-bottom:10px;" onclick="showStaffManualInput()">✏️ 手動輸入（無 QR Code）</button>
       <div id="staffScanResult" style="display:none;margin-top:18px;text-align:center;background:#f8f4ee;border-radius:10px;padding:16px 8px;">
         <div style="font-size:15px;color:#9c6b5e;margin-bottom:8px;">掃描結果</div>
         <div id="staffScanName" style="font-size:16px;font-weight:600;color:#2c2018;">—</div>
         <div id="staffScanCount" style="font-size:14px;color:#4a3728;">—</div>
         <div id="staffScanPhone" style="font-size:14px;color:#4a3728;">—</div>
         <button class="btn-submit" style="margin-top:14px;" onclick="submitStaffCheckin()">確認報到</button>
+      </div>
+      <div id="staffManualInput" style="display:none;margin-top:18px;text-align:center;background:#f8f4ee;border-radius:10px;padding:16px 8px;">
+        <div style="font-size:15px;color:#9c6b5e;margin-bottom:8px;">手動輸入</div>
+        <input id="manualName" type="text" placeholder="姓名" style="margin-bottom:8px;width:80%;padding:8px;border-radius:6px;border:1px solid #c9a090;"><br>
+        <input id="manualCount" type="number" min="1" max="20" placeholder="人數" style="margin-bottom:8px;width:80%;padding:8px;border-radius:6px;border:1px solid #c9a090;"><br>
+        <input id="manualPhone" type="text" placeholder="電話" style="margin-bottom:8px;width:80%;padding:8px;border-radius:6px;border:1px solid #c9a090;"><br>
+        <button class="btn-submit" style="margin-top:8px;" onclick="submitStaffManualCheckin()">確認報到</button>
       </div>
     </div>
   </div>
@@ -719,6 +740,11 @@ let records = [];
 let html5QrCode = null;
 let staffQrCode = null;
 let staffScanData = { name: '', count: '', phone: '', raw: '' };
+function showStaffManualInput() {
+  stopStaffScanner();
+  document.getElementById('staffScanResult').style.display = 'none';
+  document.getElementById('staffManualInput').style.display = 'block';
+}
 
 // ── Modal ──
 function openModal() {
@@ -728,6 +754,43 @@ function openModal() {
 function openStaffScanModal() {
   document.getElementById('staffScanModal').classList.add('active');
   startStaffScanner();
+}
+function openUploadModal() {
+  document.getElementById('uploadModal').classList.add('active');
+  document.getElementById('uploadStatus').textContent = '';
+  document.getElementById('excelFileInput').value = '';
+}
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.remove('active');
+}
+function handleUploadOverlayClick(e) {
+  if (e.target === document.getElementById('uploadModal')) closeUploadModal();
+}
+
+function uploadExcelFile() {
+  const fileInput = document.getElementById('excelFileInput');
+  const status = document.getElementById('uploadStatus');
+  if (!fileInput.files.length) {
+    status.textContent = '請選擇檔案';
+    return;
+  }
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+  status.textContent = '上傳中...';
+  fetch('https://d1-template.davidkung007.workers.dev/api/upload_excel', {
+    method: 'POST',
+    body: formData
+  }).then(res => {
+    if (!res.ok) throw new Error('HTTP error');
+    return res;
+  }).then(data => {
+    status.textContent = '上傳成功！';
+    setTimeout(closeUploadModal, 1200);
+  }).catch(err => {
+    status.textContent = '上傳失敗，請再試一次';
+    console.error(err);
+  });
 }
 function closeStaffScanModal() {
   document.getElementById('staffScanModal').classList.remove('active');
@@ -743,6 +806,12 @@ function resetStaffScanView() {
   document.getElementById('staffScanCount').textContent = '—';
   document.getElementById('staffScanPhone').textContent = '—';
   staffScanData = { name: '', count: '', phone: '', raw: '' };
+  if (document.getElementById('staffManualInput')) {
+    document.getElementById('staffManualInput').style.display = 'none';
+    document.getElementById('manualName').value = '';
+    document.getElementById('manualCount').value = '';
+    document.getElementById('manualPhone').value = '';
+  }
 }
 function closeModal() {
   document.getElementById('modal').classList.remove('active');
@@ -887,6 +956,33 @@ function submitStaffCheckin() {
   }).then(() => {
     alert('報到完成！');
     getchecks(); // 重新抓取最新名單
+    closeStaffScanModal();
+  }).catch(err => {
+    alert('報到失敗，請稍後再試');
+    console.error(err);
+  });
+}
+
+function submitStaffManualCheckin() {
+  const name = document.getElementById('manualName').value.trim();
+  const count = document.getElementById('manualCount').value.trim();
+  const phone = document.getElementById('manualPhone').value.trim();
+  if (!name || !count) {
+    alert('請輸入姓名與人數');
+    return;
+  }
+  const payload = {
+    user_id: encodeURIComponent(phone),
+    name: encodeURIComponent(name),
+    count: encodeURIComponent(count)
+  };
+  fetch(`https://d1-template.davidkung007.workers.dev/api/check?user_id=${payload.user_id}&name=${payload.name}&number=${payload.count}`)
+  .then(res => {
+    if (!res.ok) throw new Error('HTTP error');
+    return res;
+  }).then(() => {
+    alert('報到完成！');
+    getchecks();
     closeStaffScanModal();
   }).catch(err => {
     alert('報到失敗，請稍後再試');
