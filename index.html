@@ -560,6 +560,12 @@
       </svg>
       立即報到
     </button>
+    <button class="btn-checkin" style="margin-left:12px;background:linear-gradient(135deg,#9c6b5e,#c9a090);color:white;" onclick="openStaffScanModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0020 7.382V6a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a1 1 0 00.447 1.342L9 10m6 0v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4m11 0v4a2 2 0 01-2 2h-2" />
+      </svg>
+      掃描報到
+    </button>
   </div>
 
   <p class="scroll-hint">▼</p>
@@ -652,6 +658,25 @@
 
 <!-- Confetti container -->
 <div class="confetti-container" id="confettiContainer"></div>
+<!-- Staff Scan Modal -->
+<div class="modal-overlay" id="staffScanModal" onclick="handleStaffOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeStaffScanModal()">✕</button>
+    <h2 class="modal-title">工作人員掃描報到</h2>
+    <p class="modal-sub">STAFF QR SCAN</p>
+    <div id="staffScanView">
+      <div id="staff-qr-reader"></div>
+      <p class="scanner-hint">請將 QR Code 對準框內進行掃描</p>
+      <div id="staffScanResult" style="display:none;margin-top:18px;text-align:center;background:#f8f4ee;border-radius:10px;padding:16px 8px;">
+        <div style="font-size:15px;color:#9c6b5e;margin-bottom:8px;">掃描結果</div>
+        <div id="staffScanName" style="font-size:16px;font-weight:600;color:#2c2018;">—</div>
+        <div id="staffScanCount" style="font-size:14px;color:#4a3728;">—</div>
+        <div id="staffScanPhone" style="font-size:14px;color:#4a3728;">—</div>
+        <button class="btn-submit" style="margin-top:14px;" onclick="submitStaffCheckin()">確認報到</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Records floating button -->
 <div style="position:fixed;bottom:28px;right:28px;z-index:50;">
@@ -692,11 +717,32 @@ let guestCount = 1;
 let qrCodeResult = '';
 let records = [];
 let html5QrCode = null;
+let staffQrCode = null;
+let staffScanData = { name: '', count: '', phone: '', raw: '' };
 
 // ── Modal ──
 function openModal() {
   document.getElementById('modal').classList.add('active');
   startScanner();
+}
+function openStaffScanModal() {
+  document.getElementById('staffScanModal').classList.add('active');
+  startStaffScanner();
+}
+function closeStaffScanModal() {
+  document.getElementById('staffScanModal').classList.remove('active');
+  stopStaffScanner();
+  resetStaffScanView();
+}
+function handleStaffOverlayClick(e) {
+  if (e.target === document.getElementById('staffScanModal')) closeStaffScanModal();
+}
+function resetStaffScanView() {
+  document.getElementById('staffScanResult').style.display = 'none';
+  document.getElementById('staffScanName').textContent = '—';
+  document.getElementById('staffScanCount').textContent = '—';
+  document.getElementById('staffScanPhone').textContent = '—';
+  staffScanData = { name: '', count: '', phone: '', raw: '' };
 }
 function closeModal() {
   document.getElementById('modal').classList.remove('active');
@@ -738,6 +784,7 @@ function updateStep(n) {
 
 // ── Scanner ──
 let scannerRunning = false;
+let staffScannerRunning = false;
 
 function startScanner() {
   if (html5QrCode) return;
@@ -762,6 +809,88 @@ function startScanner() {
     console.warn('Camera error', err);
     html5QrCode = null;
     scannerRunning = false;
+  });
+}
+
+function startStaffScanner() {
+  if (staffQrCode) return;
+  document.getElementById('staff-qr-reader').innerHTML = '';
+  staffQrCode = new Html5Qrcode("staff-qr-reader");
+  const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+  staffQrCode.start(
+    { facingMode: "environment" },
+    config,
+    (decodedText) => {
+      stopStaffScanner().then(() => {
+        staffScanData.raw = decodedText;
+        // 預設格式: 名稱,人數,電話
+        let parts = decodedText.split('/');
+        staffScanData.name = parts[0] || '';
+        staffScanData.count = parts[1] || '';
+        staffScanData.phone = parts[2] || '';
+        document.getElementById('staffScanName').textContent = '姓名：' + staffScanData.name;
+        document.getElementById('staffScanCount').textContent = '人數：' + staffScanData.count;
+        document.getElementById('staffScanPhone').textContent = '電話：' + staffScanData.phone;
+        document.getElementById('staffScanResult').style.display = 'block';
+      });
+    }
+  ).then(() => {
+    staffScannerRunning = true;
+  }).catch(err => {
+    console.warn('Staff Camera error', err);
+    staffQrCode = null;
+    staffScannerRunning = false;
+  });
+}
+
+function stopStaffScanner() {
+  return new Promise((resolve) => {
+    if (staffQrCode && staffScannerRunning) {
+      staffQrCode.stop().then(() => {
+        staffQrCode = null;
+        staffScannerRunning = false;
+        resolve();
+      }).catch(() => {
+        staffQrCode = null;
+        staffScannerRunning = false;
+        resolve();
+      });
+    } else {
+      if (staffQrCode) {
+        try { staffQrCode.clear(); } catch(e) {}
+      }
+      staffQrCode = null;
+      staffScannerRunning = false;
+      resolve();
+    }
+  });
+}
+
+function submitStaffCheckin() {
+  // 呼叫後端API寫入資料庫
+  if (!staffScanData.name || !staffScanData.count) {
+    alert('資料不完整，請重新掃描');
+    return;
+  }
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  // API: name, count, phone, time, qr
+  const payload = {
+    user_id: encodeURIComponent(staffScanData.phone),
+    name: encodeURIComponent(staffScanData.name),
+    count: encodeURIComponent(staffScanData.count)
+  };
+  fetch(`https://d1-template.davidkung007.workers.dev/api/check?user_id=${payload.user_id}&name=${payload.name}&number=${payload.count}`)
+  .then(res => {
+    if (!res.ok) throw new Error('HTTP error');
+    return res;
+  }).then(() => {
+    alert('報到完成！');
+    getchecks(); // 重新抓取最新名單
+    closeStaffScanModal();
+  }).catch(err => {
+    alert('報到失敗，請稍後再試');
+    console.error(err);
   });
 }
 
@@ -843,6 +972,7 @@ async function getchecks() {
     
     const data = await response.json();
 
+    records = [];
     // 假設 data 是陣列，每一筆有 name, guestCount, update_at, qrCodeResult
     data.forEach(item => {
       const { name, number, update_at, qrCodeResult } = item;
