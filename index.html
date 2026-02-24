@@ -1,12 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>9299婚禮報到 · Wedding Check-in</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
+      /* Guest Table Hash QR */
+      .guest-hash-link {
+        color: #b07a4a;
+        text-decoration: underline;
+        cursor: pointer;
+        font-family: monospace;
+        font-size: 13px;
+        background: none;
+        border: none;
+        padding: 0;
+        transition: color .15s;
+      }
+      .guest-hash-link:hover {
+        color: #9c6b5e;
+        background: #f8f4ee;
+      }
+      .modal-overlay.qr-modal { z-index: 300; }
+      .qr-modal-content { text-align: center; padding: 32px 24px; }
+      #qrHashValue { font-size: 13px; color: #9c6b5e; margin-top: 12px; word-break: break-all; }
     /* Guest Table Styles */
     #guestTable {
       width: 100%;
@@ -631,9 +651,9 @@
   <div style="max-width:1200px;margin:0 auto;padding:32px 18px 18px 18px;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(200,169,110,.12);">
     <h2 style="font-family:'Playfair Display',serif;font-size:28px;color:#9c6b5e;margin-bottom:18px;text-align:center;">賓客名單列表</h2>
     <div style="overflow-x:auto;">
-      <table id="guestTable" style="width:100%;border-collapse:collapse;font-size:14px;">
+      <table id="guestTable">
         <thead>
-          <tr style="background:#f8f4ee;color:#9c6b5e;">
+          <tr>
             <th>姓名</th><th>關係</th><th>出席</th><th>同行</th><th>兒童座</th><th>素食</th><th>邀請函</th><th>Email</th><th>地址</th><th>電話</th><th>留言</th><th>回覆時間</th><th>秒數</th><th>IP</th><th>全員</th><th>紀錄</th><th>會員時間</th><th>Hash</th>
           </tr>
         </thead>
@@ -733,6 +753,15 @@
 <!-- Confetti container -->
 <div class="confetti-container" id="confettiContainer"></div>
 <!-- Excel Upload Modal -->
+<!-- QR Code Modal for Hash (moved out for global use) -->
+<div class="modal-overlay qr-modal" id="qrModal" style="display:none;align-items:center;justify-content:center;">
+  <div class="modal qr-modal-content">
+    <button class="modal-close" onclick="closeQrModal()">✕</button>
+    <h2 class="modal-title">Hash QR Code</h2>
+    <div id="qrHashBox" style="margin:18px auto 0 auto;"></div>
+    <div id="qrHashValue"></div>
+  </div>
+</div>
 <div class="modal-overlay" id="uploadModal" onclick="handleUploadOverlayClick(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeUploadModal()">✕</button>
@@ -793,6 +822,32 @@
 </div>
 
 <script>
+// ── QR Code Modal for Hash ──
+let qrHashQr = null;
+function showQrModal(hash) {
+  document.getElementById('qrModal').style.display = 'flex';
+  document.getElementById('qrHashValue').textContent = hash;
+  const qrBox = document.getElementById('qrHashBox');
+  qrBox.innerHTML = '';
+  qrHashQr = new QRious({
+    element: undefined,
+    value: hash,
+    size: 180,
+    background: '#fff',
+    foreground: '#2c2018',
+    level: 'H'
+  });
+  const img = document.createElement('img');
+  img.src = qrHashQr.toDataURL();
+  img.style.width = '180px';
+  img.style.height = '180px';
+  qrBox.appendChild(img);
+}
+function closeQrModal() {
+  document.getElementById('qrModal').style.display = 'none';
+  document.getElementById('qrHashBox').innerHTML = '';
+  qrHashQr = null;
+}
 // ── Guest List Tab Navigation ──
 function showMainView() {
   document.getElementById('mainView').style.display = '';
@@ -842,7 +897,7 @@ function loadGuestList() {
           <td>${g.full_flag || ''}</td>
           <td>${g.user_record || ''}</td>
           <td>${g.member_time || ''}</td>
-          <td>${g.hash || ''}</td>
+          <td><button class="guest-hash-link" onclick="showQrModal('${g.hash || ''}')">${g.hash || ''}</button></td>
         </tr>
       `).join('');
     })
