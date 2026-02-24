@@ -88,6 +88,13 @@
     #guestTable td {
       border-right: 1px solid #f4e3d0;
     }
+    #guestTable td:nth-child(11),
+    #guestTable th:nth-child(11) {
+      white-space: normal;
+      word-break: keep-all;     /* 中文不要亂拆字 */
+      overflow-wrap: break-word; /* 只有超長字串才斷行 */
+      max-width: 300px;         /* 控制寬度，才會真的換行 */
+    }
     @media (max-width: 900px) {
       #guestTable th, #guestTable td { font-size: 13px; }
     }
@@ -113,7 +120,7 @@
   /* ── Hero ── */
   .hero {
     position: relative;
-    height: 100vh;
+    height: 100dvh;
     min-height: 600px;
     overflow: hidden;
     display: flex;
@@ -653,7 +660,7 @@
 
 <!-- Guest List View -->
 <section id="guestView" style="display:none;padding:48px 0 0 0;background:var(--cream);min-height:100vh;">
-  <div style="max-width:1200px;margin:0 auto;padding:32px 18px 18px 18px;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(200,169,110,.12);">
+  <div style="max-width:1800px;margin:0 auto;padding:32px 18px 18px 18px;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(200,169,110,.12);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
       <h2 style="font-family:'Playfair Display',serif;font-size:28px;color:#9c6b5e;text-align:center;margin:0;">賓客名單列表</h2>
       <button class="btn-checkin" style="background:linear-gradient(135deg,#c8a96e,#e8d5b7);color:#2c2018;padding:8px 22px;font-size:15px;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);margin-left:18px;" onclick="openUploadModal()">
@@ -664,11 +671,11 @@
       </button>
     </div>
     <div style="overflow-x:auto;">
-      <div style="max-height:420px;overflow-y:auto;">
+      <div style="max-height:630px;overflow-y:auto;">
         <table id="guestTable">
           <thead>
             <tr>
-              <th>姓名</th><th>關係</th><th>出席</th><th>同行</th><th>兒童座</th><th>素食</th><th>邀請函</th><th>Email</th><th>地址</th><th>電話</th><th>留言</th><th>回覆時間</th><th>秒數</th><th>IP</th><th>全員</th><th>紀錄</th><th>會員時間</th><th>Hash</th>
+              <th>姓名</th><th>關係</th><th>出席</th><th>同行</th><th>兒童座</th><th>素食</th><th>邀請函</th><th>Email</th><th>地址</th><th>電話</th><th>留言</th><th>回覆時間</th><th>Hash</th>
             </tr>
           </thead>
           <tbody id="guestTableBody">
@@ -906,11 +913,6 @@ function loadGuestList() {
           <td>${g.phone || ''}</td>
           <td>${g.message || ''}</td>
           <td>${g.answer_time || ''}</td>
-          <td>${g.answer_seconds || ''}</td>
-          <td>${g.ip || ''}</td>
-          <td>${g.full_flag || ''}</td>
-          <td>${g.user_record || ''}</td>
-          <td>${g.member_time || ''}</td>
           <td><button class="guest-hash-link" onclick="showQrModal('${g.hash || ''}')">${g.hash || ''}</button></td>
         </tr>
       `).join('');
