@@ -615,7 +615,7 @@
 <!-- Top-right tab navigation -->
 <div style="position:fixed;top:18px;right:28px;z-index:120;display:flex;gap:8px;">
   <button id="mainTabBtn" class="btn-checkin" style="padding:8px 22px;font-size:15px;background:linear-gradient(135deg,#c9a090,#e8d5b7);color:#2c2018;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);" onclick="showMainView()">主頁</button>
-  <button id="guestTabBtn" class="btn-checkin" style="padding:8px 22px;font-size:15px;background:linear-gradient(135deg,#9c6b5e,#c9a090);color:white;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);" onclick="showGuestView()">賓客名單</button>
+  <button id="guestTabBtn" class="btn-checkin" style="padding:8px 22px;font-size:15px;background:linear-gradient(135deg,#9c6b5e,#c9a090);color:white;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);" onclick="showGuestView()">賓客</button>
 </div>
 
 <!-- Main Hero View -->
@@ -636,12 +636,6 @@
       </svg>
       掃描報到
     </button>
-    <button class="btn-checkin" style="margin-left:12px;background:linear-gradient(135deg,#c8a96e,#e8d5b7);color:#2c2018;" onclick="openUploadModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-      </svg>
-      人數上傳
-    </button>
   </div>
   <p class="scroll-hint">▼</p>
 </section>
@@ -649,7 +643,15 @@
 <!-- Guest List View -->
 <section id="guestView" style="display:none;padding:48px 0 0 0;background:var(--cream);min-height:100vh;">
   <div style="max-width:1200px;margin:0 auto;padding:32px 18px 18px 18px;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(200,169,110,.12);">
-    <h2 style="font-family:'Playfair Display',serif;font-size:28px;color:#9c6b5e;margin-bottom:18px;text-align:center;">賓客名單列表</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:28px;color:#9c6b5e;text-align:center;margin:0;">賓客名單列表</h2>
+      <button class="btn-checkin" style="background:linear-gradient(135deg,#c8a96e,#e8d5b7);color:#2c2018;padding:8px 22px;font-size:15px;border-radius:18px;box-shadow:0 2px 8px rgba(200,169,110,.18);margin-left:18px;" onclick="openUploadModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="vertical-align:middle;width:20px;height:20px;margin-right:4px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        上傳
+      </button>
+    </div>
     <div style="overflow-x:auto;">
       <table id="guestTable">
         <thead>
@@ -765,7 +767,7 @@
 <div class="modal-overlay" id="uploadModal" onclick="handleUploadOverlayClick(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeUploadModal()">✕</button>
-    <h2 class="modal-title">人數上傳</h2>
+    <h2 class="modal-title">上傳</h2>
     <p class="modal-sub">EXCEL UPLOAD</p>
     <div style="margin-top:18px;text-align:center;">
       <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="margin-bottom:16px;">
