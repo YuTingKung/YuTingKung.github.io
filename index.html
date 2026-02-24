@@ -40,10 +40,7 @@
       padding: 10px 8px;
       border-bottom: 1px solid #f4e3d0;
       text-align: left;
-      max-width: 180px;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     #guestTable th {
       position: sticky;
@@ -56,12 +53,18 @@
       font-size: 15px;
       border-bottom: 2px solid #e8d5b7;
     }
-    #guestTable th:first-child,
+    #guestTable th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      background: linear-gradient(135deg,#f8f4ee,#e8d5b7);
+      box-shadow: 2px 0 4px -2px #e8d5b7;
+    }
     #guestTable td:first-child {
       position: sticky;
       left: 0;
-      background: #fff8f0;
       z-index: 3;
+      background: #fff8f0;
       box-shadow: 2px 0 4px -2px #e8d5b7;
     }
     #guestTable tr:nth-child(even) {
@@ -86,7 +89,7 @@
       border-right: 1px solid #f4e3d0;
     }
     @media (max-width: 900px) {
-      #guestTable th, #guestTable td { max-width: 90px; font-size: 13px; }
+      #guestTable th, #guestTable td { font-size: 13px; }
     }
   :root {
     --cream: #f8f4ee;
@@ -661,13 +664,14 @@
       </button>
     </div>
     <div style="overflow-x:auto;">
-      <table id="guestTable">
-        <thead>
-          <tr>
-            <th>姓名</th><th>關係</th><th>出席</th><th>同行</th><th>兒童座</th><th>素食</th><th>邀請函</th><th>Email</th><th>地址</th><th>電話</th><th>留言</th><th>回覆時間</th><th>秒數</th><th>IP</th><th>全員</th><th>紀錄</th><th>會員時間</th><th>Hash</th>
-          </tr>
-        </thead>
-        <tbody id="guestTableBody">
+      <div style="max-height:420px;overflow-y:auto;">
+        <table id="guestTable">
+          <thead>
+            <tr>
+              <th>姓名</th><th>關係</th><th>出席</th><th>同行</th><th>兒童座</th><th>素食</th><th>邀請函</th><th>Email</th><th>地址</th><th>電話</th><th>留言</th><th>回覆時間</th><th>秒數</th><th>IP</th><th>全員</th><th>紀錄</th><th>會員時間</th><th>Hash</th>
+            </tr>
+          </thead>
+          <tbody id="guestTableBody">
           <tr><td colspan="18" style="text-align:center;color:#c9a090;padding:18px;">資料載入中...</td></tr>
         </tbody>
       </table>
