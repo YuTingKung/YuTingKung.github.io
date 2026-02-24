@@ -843,10 +843,10 @@ async function getchecks() {
     
     const data = await response.json();
 
-    // 假設 data 是陣列，每一筆有 name, guestCount, timeStr, qrCodeResult
+    // 假設 data 是陣列，每一筆有 name, guestCount, update_at, qrCodeResult
     data.forEach(item => {
-      const { name, number, timeStr, qrCodeResult } = item;
-      records.push({ name, count: number, time: timeStr, qr: qrCodeResult });
+      const { name, number, update_at, qrCodeResult } = item;
+      records.push({ name, count: number, time: update_at, qr: qrCodeResult });
     });
 
     // 更新畫面或表格
